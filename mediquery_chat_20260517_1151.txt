@@ -1,0 +1,55 @@
+MediQuery AI - Conversation Export
+Session: 2026-05-17 11:48
+============================================================
+
+[2026-05-17 11:48] You:
+What are the symptoms of Type 2 diabetes?
+
+[2026-05-17 11:48] MediQuery AI:
+I don't have enough information in the uploaded documents to answer this question. Please consult a healthcare professional.
+
+[2026-05-17 11:49] You:
+what target weight and bmi
+
+[2026-05-17 11:49] MediQuery AI:
+The target weight loss is 5–7 kg over 6 months (approximately 0.5–1 kg/week) and the target BMI is < 25.0.
+
+[2026-05-17 11:50] You:
+summarize document 
+
+[2026-05-17 11:50] MediQuery AI:
+The documents provide the following information regarding the management and symptoms of Type 2 diabetes:
+
+1. **Diagnosis and Current Status**: The patient has Type 2 Diabetes Mellitus, diagnosed in 2020, and it is currently poorly controlled with an HbA1c of 8.2%.
+2. **Target Blood Glucose Levels**: 
+   - Fasting blood glucose should be monitored daily.
+   - Post-meal glucose checks should be done 2 hours after meals, 3 times a week.
+   - The HbA1c target is < 7.0% in 3 months.
+3. **Weight Management**:
+   - Target weight loss: 5–7 kg over 6 months (approximately 0.5–1 kg/week).
+   - Target BMI: < 25.0.
+   - Waist circumference target: < 90 cm.
+4. **Lifestyle and Dietary Recommendations**:
+   - The DASH Diet is strictly recommended.
+   - Reduce sodium intake to < 1500 mg/day.
+   - Avoid certain foods like pickles, papads, processed meats, canned foods, and restaurant/fast food.
+   - Increase potassium-rich foods and limit saturated fats.
+   - Target carbohydrate intake: 45–60g per meal for glycaemic control.
+   - Increase dietary fibre to 30–35g/day.
+5. **Physical Activity**:
+   - Target 150 minutes of moderate aerobic exercise per week.
+   - Start with 20-minute brisk walks and gradually increase.
+   - Avoid strenuous exercise until cardiac clearance is obtained.
+   - Resistance training 2 times a week after 4 weeks, with physiotherapist guidance.
+
+These recommendations are aimed at managing Type 2 diabetes, achieving target weight loss and BMI goals, and overall improving the patient's health status.
+
+[2026-05-17 11:51] You:
+what is bp level
+
+[2026-05-17 11:51] MediQuery AI:
+The target blood pressure level for the patient is < 130/80 mmHg, as mentioned in the "Blood Pressure Monitoring" section of the document.
+
+============================================================
+⚠️ Medical Disclaimer: This conversation is for informational purposes only.
+Always consult a qualified healthcare professional for medical advice.

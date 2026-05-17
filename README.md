@@ -1,108 +1,173 @@
-# **🏥 MediQuery-AI-Medical-RAG-Chatbot-using-LangChain**
+# 🌸 MediQuery AI — Medical RAG Chatbot
 
+> **Retrieval-Augmented Generation for Medical Document Q&A**  
+> Built with LangChain · FAISS · HuggingFace · Streamlit · Groq/OpenAI
 
-An intelligent **Medical AI Assistant** built using **Retrieval-Augmented Generation (RAG)**, **LangChain**, **Groq LLM**, **FAISS Vector Database**, and **Streamlit**.
-
-This chatbot answers medical questions from uploaded medical PDFs such as:
-
-* prescriptions
-* medical reports
-* healthcare guides
-* treatment manuals
-* research papers
-
-The chatbot retrieves relevant information from uploaded documents and generates grounded responses using Large Language Models (LLMs).
+[![Python](https://img.shields.io/badge/Python-3.10+-blue)](https://python.org)
+[![LangChain](https://img.shields.io/badge/LangChain-0.2-green)](https://python.langchain.com)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.38-red)](https://streamlit.io)
+[![License](https://img.shields.io/badge/License-MIT-pink)](LICENSE)
 
 ---
 
-# 🚀 Features
+## 📋 Table of Contents
 
-✅ Upload Multiple Medical PDFs
-✅ Retrieval-Augmented Generation (RAG)
-✅ Conversational AI Chatbot
-✅ Groq Llama3 Integration
-✅ FAISS Vector Database
-✅ Semantic Search
-✅ Chat History
-✅ Source Citation
-✅ Conversational Memory
-✅ Streamlit UI
-✅ Medical Safety Disclaimer
-✅ Modular Project Structure
-✅ Production-Style Architecture
-
----
-
-# 🧠 What is RAG?
-
-RAG (Retrieval-Augmented Generation) is an AI architecture that:
-
-1. Retrieves relevant information from documents
-2. Sends retrieved context to the LLM
-3. Generates grounded answers
-
-Instead of answering from general knowledge, the chatbot answers directly from uploaded medical documents.
+- [What is MediQuery AI?](#what-is-mediquery-ai)
+- [What is RAG?](#what-is-rag)
+- [Architecture](#architecture)
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Running the App](#running-the-app)
+- [Sample Questions](#sample-questions)
+- [Deployment](#deployment)
+- [Future Improvements](#future-improvements)
+- [Medical Disclaimer](#medical-disclaimer)
 
 ---
 
-# 📌 Why RAG for Healthcare?
+## What is MediQuery AI?
 
-Healthcare applications require:
+MediQuery AI is a **production-grade medical document chatbot** that uses **Retrieval-Augmented Generation (RAG)** to answer healthcare-related questions strictly from uploaded PDF documents.
 
-* factual accuracy
-* reduced hallucination
-* grounded responses
-* document-based answers
+**Key benefits over generic ChatGPT:**
+- ✅ Answers only from YOUR medical documents (no hallucination)
+- ✅ Cites exact sources (page number, document name)
+- ✅ Works with your private prescriptions, lab reports, clinical guidelines
+- ✅ Conversational memory (follow-up questions work naturally)
+- ✅ Emergency safety detection
 
-RAG improves reliability by using trusted medical documents as context.
+**Supported document types:**
+- 💊 Prescriptions
+- 🧪 Lab Reports
+- 📖 Research Papers
+- 🏥 Hospital Discharge Summaries
+- 📋 Treatment Protocols
+- 📚 Clinical Guidelines & Medical Textbooks
 
 ---
 
-# 🏗️ Project Architecture
+## What is RAG?
 
-```text
+**Retrieval-Augmented Generation** is an AI architecture that:
+
+```
 User Question
-      ↓
-Embedding Generation
-      ↓
-Vector Similarity Search (FAISS)
-      ↓
-Top Relevant Chunks Retrieved
-      ↓
-LLM (Groq Llama3)
-      ↓
-Final Grounded Answer
+     ↓
+[Embed Question] → 384-dim vector
+     ↓
+[FAISS Search]  → Top-5 relevant document chunks
+     ↓
+[Build Prompt]  → "Context: {chunks} | Question: {query}"
+     ↓
+[LLM (Groq)]   → Grounded answer
+     ↓
+User sees: Answer + Source Citations
+```
+
+**Why RAG for Healthcare?**
+| Problem | RAG Solution |
+|---------|-------------|
+| LLMs hallucinate medical facts | Only answers from retrieved documents |
+| Generic training data | Your specific patient documents |
+| No source attribution | Cites exact page and document |
+| Static knowledge | Add new PDFs anytime |
+| Context window limits | Chunks fit any LLM |
+
+---
+
+## Architecture
+
+```
+medical-rag-chatbot/
+│
+├── app.py                  ← Streamlit UI + Orchestration
+│
+├── src/
+│   ├── loader.py           ← PDF → LangChain Documents
+│   ├── splitter.py         ← Documents → Overlapping Chunks
+│   ├── embeddings.py       ← Chunks → 384-dim Vectors
+│   ├── vectordb.py         ← FAISS/Chroma Index + Retriever
+│   ├── rag_chain.py        ← ConversationalRetrievalChain
+│   ├── memory.py           ← ConversationBufferMemory
+│   ├── prompts.py          ← Medical Prompt Templates
+│   ├── database.py         ← SQLite Chat History
+│   └── utils.py            ← Config, Logging, Helpers
+│
+├── assets/
+│   └── styles.css          ← Light Pink Medical Theme
+│
+├── data/                   ← Uploaded PDFs (auto-created)
+├── vectorstore/            ← FAISS/Chroma Index (auto-created)
+├── chat_history/           ← SQLite DB (auto-created)
+│
+├── notebooks/
+│   └── experimentation.ipynb
+│
+├── requirements.txt
+├── .env.example
+└── README.md
+```
+
+**Data Flow:**
+```
+PDF Upload → PyPDFLoader → RecursiveCharacterTextSplitter
+          → HuggingFaceEmbeddings (all-MiniLM-L6-v2)
+          → FAISS Index (saved to disk)
+          → VectorStoreRetriever (top-k=5)
+          → ConversationalRetrievalChain (Groq/OpenAI LLM)
+          → Answer + Source Documents → Streamlit UI
 ```
 
 ---
 
-# 📂 Project Structure
+## Features
 
-```text
+| Feature | Implementation |
+|---------|---------------|
+| PDF Ingestion | PyPDFLoader (multi-file, multi-page) |
+| Text Chunking | RecursiveCharacterTextSplitter (configurable size/overlap) |
+| Embeddings | `sentence-transformers/all-MiniLM-L6-v2` (384-dim) |
+| Vector DB | FAISS (default) or ChromaDB |
+| LLM | Groq (free, fast) or OpenAI GPT-4 |
+| RAG Chain | ConversationalRetrievalChain |
+| Memory | ConversationBufferMemory |
+| Source Citation | Page number + similarity score + preview |
+| Chat Storage | SQLite via SQLAlchemy |
+| Safety | Emergency keyword detection |
+| UI | Streamlit + custom light pink CSS theme |
+| Export | Download chat history as .txt |
+
+---
+
+## Project Structure
+
+```
 medical-rag-chatbot/
-│
-├── app.py
-├── requirements.txt
-├── .env
-├── README.md
-│
-├── data/
-├── vectorstore/
-├── chat_history/
+├── app.py                  Main Streamlit application
+├── requirements.txt        All Python dependencies (explained)
+├── .env.example            Template for environment variables
+├── README.md               This file
 │
 ├── src/
-│   ├── loader.py
-│   ├── splitter.py
-│   ├── embeddings.py
-│   ├── vectordb.py
-│   ├── rag_chain.py
-│   ├── memory.py
-│   ├── prompts.py
-│   ├── utils.py
-│   └── database.py
+│   ├── __init__.py
+│   ├── loader.py           DocumentLoader class
+│   ├── splitter.py         TextChunker class
+│   ├── embeddings.py       EmbeddingGenerator class
+│   ├── vectordb.py         VectorDatabase class
+│   ├── rag_chain.py        RAGChain class
+│   ├── memory.py           ChatMemoryManager class
+│   ├── prompts.py          Prompt templates + safety checks
+│   ├── database.py         ChatDatabase (SQLite)
+│   └── utils.py            Config, logging, formatters
 │
 ├── assets/
-│   └── styles.css
+│   └── styles.css          Custom light pink CSS theme
+│
+├── data/                   (auto-created) Uploaded PDF storage
+├── vectorstore/            (auto-created) FAISS/Chroma indices
+├── chat_history/           (auto-created) SQLite database
 │
 └── notebooks/
     └── experimentation.ipynb
@@ -110,366 +175,217 @@ medical-rag-chatbot/
 
 ---
 
-# ⚙️ Technologies Used
+## Installation
 
-| Technology            | Purpose               |
-| --------------------- | --------------------- |
-| Python                | Backend               |
-| Streamlit             | Frontend UI           |
-| LangChain             | RAG Framework         |
-| Groq                  | LLM Inference         |
-| FAISS                 | Vector Database       |
-| HuggingFace           | Embeddings            |
-| Sentence Transformers | Semantic Embeddings   |
-| PyPDF                 | PDF Parsing           |
-| dotenv                | Environment Variables |
+### Prerequisites
+- Python 3.10 or higher
+- pip package manager
+- Git
 
----
-
-# 📦 Installation
-
-## 1️⃣ Clone Repository
+### Step 1: Clone the Repository
 
 ```bash
-git clone <your-github-repo-url>
+git clone https://github.com/YOUR_USERNAME/medical-rag-chatbot.git
 cd medical-rag-chatbot
 ```
 
----
-
-## 2️⃣ Create Virtual Environment
-
-### Windows
+### Step 2: Create Virtual Environment
 
 ```bash
+# Create virtual environment
 python -m venv venv
-venv\Scripts\activate
-```
 
-### Mac/Linux
-
-```bash
-python3 -m venv venv
+# Activate (Mac/Linux)
 source venv/bin/activate
+
+# Activate (Windows)
+venv\Scripts\activate
+
+# Verify activation
+which python  # Should show path with 'venv'
 ```
 
----
-
-# 📥 Install Dependencies
+### Step 3: Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
----
+> ⏱️ First install takes 3-5 minutes. The HuggingFace model (~80MB) downloads on first run.
 
-# 🔑 Setup Groq API Key
+### Step 4: Configure Environment
 
-Get free API key from:
+```bash
+# Copy the template
+cp .env.example .env
 
-[Groq Console](https://console.groq.com?utm_source=chatgpt.com)
-
-Create `.env`
-
-```env
-GROQ_API_KEY=your_api_key_here
+# Edit with your API keys
+nano .env  # or code .env / notepad .env
 ```
 
 ---
 
-# ▶️ Run Application
+## Configuration
+
+Edit your `.env` file:
 
 ```bash
+# Choose your LLM provider:
+
+# Option A: Groq (FREE, ultra-fast, recommended for beginners)
+GROQ_API_KEY=gsk_your_groq_key_here
+LLM_PROVIDER=groq
+GROQ_MODEL=llama-3.1-70b-versatile
+
+# Option B: OpenAI (paid, most powerful)
+OPENAI_API_KEY=sk-your_openai_key_here
+LLM_PROVIDER=openai
+OPENAI_MODEL=gpt-4o
+```
+
+**Getting API Keys:**
+- **Groq (Free):** https://console.groq.com → Sign up → API Keys → Create
+- **OpenAI (Paid):** https://platform.openai.com/api-keys → Create new key
+
+---
+
+## Running the App
+
+```bash
+# Make sure virtual environment is active
+source venv/bin/activate
+
+# Run Streamlit
 streamlit run app.py
 ```
 
----
-
-# 🧪 Sample Medical Questions
-
-* What medications are prescribed?
-* Summarize the patient report
-* What are the treatment recommendations?
-* What diagnosis is mentioned?
-* Explain the lab results
-* What symptoms are described?
-* What precautions are suggested?
+The app opens at: **http://localhost:8501**
 
 ---
 
-# 🧠 RAG Pipeline Workflow
+## Sample Questions for Testing
 
-## Step 1: PDF Upload
+After uploading a medical PDF, try these questions:
 
-Users upload medical PDFs through Streamlit.
+```
+Clinical Questions:
+- "What are the symptoms of the condition described?"
+- "What medications are prescribed and at what dosage?"
+- "What are the contraindications mentioned?"
+- "What follow-up tests are recommended?"
+- "Summarize the patient's diagnosis"
 
----
+Drug & Treatment:
+- "What are the side effects of [medication name]?"
+- "Are there any drug interactions mentioned?"
+- "What is the recommended treatment protocol?"
+- "What dietary restrictions are advised?"
 
-## Step 2: Document Loading
-
-PDFs are loaded using:
-
-```python
-PyPDFLoader
+Lab Reports:
+- "What do the lab results indicate?"
+- "Are any values outside normal range?"
+- "What does the cholesterol level indicate?"
+- "What follow-up is recommended based on these results?"
 ```
 
 ---
 
-## Step 3: Text Chunking
+## Deployment
 
-Large documents are split into smaller chunks using:
+### Streamlit Cloud (Free)
 
-```python
-RecursiveCharacterTextSplitter
-```
-
-Why chunking?
-
-* improves retrieval
-* reduces token usage
-* improves semantic search
-
----
-
-## Step 4: Embedding Generation
-
-Each chunk is converted into vector embeddings using:
-
-```python
-sentence-transformers/all-MiniLM-L6-v2
-```
-
----
-
-## Step 5: Vector Storage
-
-Embeddings are stored in:
-
-```python
-FAISS
-```
-
-FAISS performs fast similarity search.
-
----
-
-## Step 6: Retrieval
-
-When user asks question:
-
-* query embedding generated
-* top-k relevant chunks retrieved
-
----
-
-## Step 7: LLM Generation
-
-Retrieved context passed to:
-
-* Llama3
-* Mixtral
-* Groq models
-
-LLM generates grounded answer.
-
----
-
-# 💬 Conversational Memory
-
-The chatbot remembers previous conversation using:
-
-```python
-ConversationBufferMemory
-```
-
-This enables:
-
-* contextual follow-up questions
-* conversational continuity
-* chat history tracking
-
----
-
-# 🛡️ Medical Safety Layer
-
-⚠️ Disclaimer:
-This chatbot is not a licensed medical professional.
-
-The chatbot:
-
-* avoids hallucination
-* avoids unsafe diagnosis
-* refuses emergency instructions
-* recommends consulting doctors
-
----
-
-# 🔍 Semantic Search
-
-Semantic search retrieves information based on meaning instead of keyword matching.
-
-Example:
-
-* “heart pain”
-* “chest discomfort”
-
-Both retrieve similar context.
-
----
-
-# 📊 Vector Database
-
-FAISS stores:
-
-* document chunks
-* embeddings
-* metadata
-
-Benefits:
-
-* fast retrieval
-* scalable search
-* efficient similarity matching
-
----
-
-# 🖥️ Frontend Features
-
-✅ Modern Streamlit UI
-✅ Upload PDFs
-✅ Chat Interface
-✅ Typing Animation
-✅ Sidebar Statistics
-✅ Source Citations
-✅ Dark/Light Theme
-✅ Download Chat History
-✅ Clear Chat Button
-
----
-
-# 📚 Source Citations
-
-Each answer includes:
-
-* retrieved chunks
-* source references
-* page numbers
-* similarity context
-
-This improves transparency and trust.
-
----
-
-# 📁 requirements.txt
-
-```txt
-streamlit==1.35.0
-langchain==0.1.16
-langchain-community==0.0.32
-langchain-groq==0.1.4
-groq==0.4.2
-faiss-cpu==1.8.0
-sentence-transformers==2.7.0
-python-dotenv==1.0.1
-pypdf==4.2.0
-tiktoken==0.7.0
-```
-
----
-
-# 🧹 Environment Variables
-
-Create `.env`
-
-```env
-GROQ_API_KEY=your_api_key
-```
-
----
-
-# 🚀 Deployment on Streamlit Cloud
-
-## Push to GitHub
-
+1. Push to GitHub:
 ```bash
 git init
 git add .
-git commit -m "Medical RAG Chatbot"
-git branch -M main
-git remote add origin <repo-url>
+git commit -m "Initial commit: Medical RAG Chatbot"
+git remote add origin https://github.com/YOUR_USERNAME/medical-rag-chatbot.git
 git push -u origin main
 ```
 
----
-
-## Deploy
-
-1. Push code to [GitHub](https://github.com?utm_source=chatgpt.com)
-2. Open [Streamlit Cloud](https://streamlit.io/cloud?utm_source=chatgpt.com)
-3. Connect GitHub repository
-4. Add secrets:
-
+2. Go to https://share.streamlit.io
+3. Connect your GitHub repo
+4. Set **Main file path:** `app.py`
+5. Add secrets in **Advanced Settings → Secrets:**
 ```toml
-GROQ_API_KEY="your_key"
+GROQ_API_KEY = "your_key_here"
+LLM_PROVIDER = "groq"
+GROQ_MODEL = "llama-3.1-70b-versatile"
+EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+VECTOR_DB = "faiss"
 ```
 
-5. Deploy app
+### Docker
+
+```dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+EXPOSE 8501
+CMD ["streamlit", "run", "app.py", "--server.port=8501"]
+```
+
+```bash
+docker build -t mediquery-ai .
+docker run -p 8501:8501 --env-file .env mediquery-ai
+```
 
 ---
 
-# 📈 Future Improvements
+## Future Improvements
 
-* Multi-user authentication
-* Voice-enabled chatbot
-* OCR support
-* Medical image analysis
-* Hybrid search
-* Pinecone integration
-* Chat export PDF
-* Multi-language support
-* Doctor recommendation system
-
----
-
-# 🧠 Key Concepts Learned
-
-* Retrieval-Augmented Generation
-* Vector Databases
-* Semantic Search
-* Embeddings
-* Conversational AI
-* LangChain Pipelines
-* Prompt Engineering
-* LLM Integration
-* Streamlit Deployment
+- [ ] **OCR Support** — Process scanned PDFs with Tesseract
+- [ ] **Multi-language** — Support non-English medical documents
+- [ ] **Audio Input** — Voice questions via Whisper API
+- [ ] **Graph RAG** — Build knowledge graphs from medical entities
+- [ ] **Fine-tuned Embeddings** — Medical-specific embedding model (BioMedBERT)
+- [ ] **Hybrid Search** — Combine BM25 keyword + semantic vector search
+- [ ] **User Authentication** — Multi-user support with separate document stores
+- [ ] **DICOM Support** — Process medical imaging metadata
+- [ ] **API Mode** — FastAPI backend for mobile app integration
+- [ ] **Evaluation Pipeline** — RAGAS metrics for retrieval quality
 
 ---
 
-# ⚠️ Disclaimer
+## Technical Concepts Explained
 
-This project is for educational purposes only.
+### Why Chunk Size = 1000 chars?
+- Too small (< 200): Loses context, retrieval returns fragments
+- Too large (> 2000): Dilutes relevance, may exceed LLM context
+- 1000 chars ≈ 150-200 words ≈ one medical paragraph ✓
 
-This chatbot:
+### Why MiniLM-L6-v2 for Embeddings?
+- 80MB vs 1.5GB for larger models
+- Runs on CPU (no GPU needed)
+- 384 dimensions: fast FAISS search
+- Trained on 1B sentence pairs: understands medical terminology
+- Free: no API calls, runs locally
 
-* is NOT a medical professional
-* should NOT replace doctors
-* should NOT be used for emergencies
-
-Always consult qualified healthcare professionals.
-
----
-
-# 👩‍💻 Author Sameeksha Rai
-
-Built with ❤️ using:
-
-* Python
-* LangChain
-* Groq
-* Streamlit
-* FAISS
+### Why FAISS over ChromaDB?
+- FAISS: in-memory, blazing fast, great for < 100k chunks
+- ChromaDB: SQLite-backed, metadata filtering, better for large datasets
+- For a medical document chatbot: FAISS is sufficient and simpler
 
 ---
 
+## Medical Disclaimer
 
+> ⚠️ **IMPORTANT:** MediQuery AI is an AI-powered tool designed for educational and informational purposes only. It is **NOT** a licensed medical professional and should **NOT** be used for:
+> - Clinical diagnosis
+> - Treatment decisions
+> - Emergency medical situations
+> - Prescribing medications
+> 
+> Always consult a qualified, licensed healthcare provider for medical advice, diagnosis, or treatment. In case of a medical emergency, call **911** (or your local emergency number) immediately.
 
+---
+
+## License
+
+MIT License — Free for personal and commercial use.
+
+---
+
+*Built with ❤️ using LangChain, HuggingFace, FAISS, Groq, and Streamlit*

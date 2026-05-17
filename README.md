@@ -1,4 +1,5 @@
-#🏥 MediQuery-AI-Medical-RAG-Chatbot-using-LangChain 
+# **🏥 MediQuery-AI-Medical-RAG-Chatbot-using-LangChain**
+
 
 An intelligent **Medical AI Assistant** built using **Retrieval-Augmented Generation (RAG)**, **LangChain**, **Groq LLM**, **FAISS Vector Database**, and **Streamlit**.
 
